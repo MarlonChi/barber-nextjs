@@ -1,5 +1,5 @@
 import { PhoneItem } from "@/app/_components/phone-item";
-import { ServiceItem } from "@/app/_components/service-item";
+import ServiceItem from "@/app/_components/service-item";
 import { SidebarButton } from "@/app/_components/sidebar-button";
 import { Button } from "@/app/_components/ui/button";
 import { db } from "@/app/_lib/prisma";

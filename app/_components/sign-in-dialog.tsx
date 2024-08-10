@@ -22,7 +22,7 @@ const SignInDialog = () => {
       >
         <Image
           alt="Fazer login com o Google"
-          src="/google.svg"
+          src="/icons/google.svg"
           width={18}
           height={18}
         />

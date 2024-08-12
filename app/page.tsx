@@ -10,12 +10,40 @@ import { db } from "./_lib/prisma";
 import { quickSearchOptions } from "./_constants/search";
 import Search from "./_components/search";
 import Link from "next/link";
+import { getServerSession } from "next-auth";
+import { authOptions } from "./_lib/auth";
+import { notFound } from "next/navigation";
 
 export default async function Home() {
+  const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    return notFound();
+  }
+
   const barbershops = await db.barbershop.findMany({});
   const popularBarbershops = await db.barbershop.findMany({
     orderBy: {
       name: "desc",
+    },
+  });
+
+  const bookings = await db.booking.findMany({
+    where: {
+      userId: (session?.user as any).id,
+      date: {
+        gte: new Date(),
+      },
+    },
+    include: {
+      service: {
+        include: {
+          barbershop: true,
+        },
+      },
+    },
+    orderBy: {
+      date: "asc",
     },
   });
 
@@ -60,12 +88,23 @@ export default async function Home() {
           />
         </div>
 
-        <BookingItem />
+        {bookings.length > 0 && (
+          <>
+            <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+              Agendamentos
+            </h2>
+            <div className="flex overflow-x-auto gap-3 [&::-webkit-scrollbar]:hidden">
+              {bookings.map((item) => (
+                <BookingItem key={item.id} booking={item} />
+              ))}
+            </div>
+          </>
+        )}
 
         <h2 className="uppercase text-xs font-bold text-gray-400 mt-6 mb-3">
           Recomendados
         </h2>
-        <div className="flex gap-4 overflow-auto [&::-webkit-scrollbar]:hidden">
+        <div className="flex gap-4 overflow-auto ">
           {barbershops.map((barbershop) => (
             <BarbershopItem key={barbershop.id} barbershop={barbershop} />
           ))}

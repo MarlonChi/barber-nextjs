@@ -1,12 +1,35 @@
+"use client";
+
 import { Booking, Prisma } from "@prisma/client";
 import { Avatar, AvatarImage } from "./ui/avatar";
 import { Badge } from "./ui/badge";
 import { Card, CardContent } from "./ui/card";
 import { format, isFuture } from "date-fns";
 import { ptBR } from "date-fns/locale";
-import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "./ui/sheet";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetTitle,
+  SheetTrigger,
+} from "./ui/sheet";
 import Image from "next/image";
 import { PhoneItem } from "./phone-item";
+import { Button } from "./ui/button";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
+import { useState } from "react";
+import { toast } from "sonner";
+import { deleteBooking } from "../_actions/delete-booking";
 
 interface BookingItemProps {
   booking: Prisma.BookingGetPayload<{
@@ -21,11 +44,27 @@ interface BookingItemProps {
 }
 
 const BookingItem = ({ booking }: BookingItemProps) => {
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
   const isConfirmed = isFuture(booking.date);
 
   const {
     service: { barbershop },
   } = booking;
+
+  const handleCancelBooking = async () => {
+    try {
+      await deleteBooking(booking.id);
+      setIsSheetOpen(false);
+      toast.success("Reserva cancelada com sucesso!");
+    } catch (error) {
+      console.error(error);
+      toast.error("Erro ao cancelar reserva. Tente novamente.");
+    }
+  };
+
+  const handleSheetOpenChange = (isOpen: boolean) => {
+    setIsSheetOpen(isOpen);
+  };
 
   return (
     <Sheet>
@@ -137,6 +176,49 @@ const BookingItem = ({ booking }: BookingItemProps) => {
             ))}
           </div>
         </div>
+        <SheetFooter className="mt-6">
+          <div className="flex items-center gap-3">
+            <SheetClose asChild>
+              <Button variant="outline" className="w-full">
+                Voltar
+              </Button>
+            </SheetClose>
+            {isConfirmed && (
+              <Dialog>
+                <DialogTrigger className="w-full">
+                  <Button variant="destructive" className="w-full">
+                    Cancelar Reserva
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="w-[90%]">
+                  <DialogHeader>
+                    <DialogTitle>Você deseja cancelar sua reserva?</DialogTitle>
+                    <DialogDescription>
+                      Ao cancelar, você perderá sua reserva e não poderá
+                      recuperá-la. Essa ação é irreversível.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <DialogFooter className="flex flex-row gap-3">
+                    <DialogClose asChild>
+                      <Button variant="secondary" className="w-full">
+                        Voltar
+                      </Button>
+                    </DialogClose>
+                    <DialogClose className="w-full">
+                      <Button
+                        variant="destructive"
+                        onClick={handleCancelBooking}
+                        className="w-full"
+                      >
+                        Confirmar
+                      </Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+            )}
+          </div>
+        </SheetFooter>
       </SheetContent>
     </Sheet>
   );

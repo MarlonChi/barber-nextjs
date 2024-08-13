@@ -11,6 +11,10 @@ Após clonar o repositório, acesse a pasta do projeto e execute os comandos aba
 
 Ter o docker instalado na máquina.
 
+Criar conta no <a href="https://console.cloud.google.com/">Google Cloud Console</a> e registar uma nova aplicação.
+
+Preencher o .env do projeto com as variáveis conforme o exemplo
+
 ```sh
 npm install
 

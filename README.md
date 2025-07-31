@@ -2,7 +2,6 @@
 
 # Barber NextJS
 
-Essa aplicação foi desenvolvida durante o evento Full Stack Week do dicasparadev.
 É uma aplicação FullStack construída com Next serve para o usuário fazer agendamento nas barbearias disponíveis.
 
 ## Executando
